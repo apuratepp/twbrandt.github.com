@@ -2,6 +2,7 @@
 
 <html>
 	<head>
+		<link href='http://fonts.googleapis.com/css?family=Libre+Baskerville:400,700' rel='stylesheet' type='text/css'>
         <meta charset="utf-8"/>
         <title> Getting Started with Ember.js |  Tom Brandt</title>
         <link rel="stylesheet" href="/styles/style.css" />
@@ -16,10 +17,11 @@
 
 		<div id="sidebar">
 			<div id="sidebar-content">
-			<p>I am a senior software developer at <a href="http://systemsinmotion.com">
+			<p>I am a senior software developer with <a href="http://systemsinmotion.com">
 				Systems in Motion</a> and a co-owner of <a href="http://workantile.com">
 				Workantile</a>. I do primarily back-end development in Rails, but have
 				recently taken a [probably unwise] interest in front-end developemt.</p>
+			<p>Follow me at <a href="http://twitter.com/twbrandt">@twbrandt</a></p>
 			</div>
 		</div>
 
@@ -101,11 +103,15 @@
 </code></pre></div>
 
 
-<p>This creates an Ember application object called App, but you can call it whatever you want. This:
-* sets up the application's namespace in which all your Ember classes will be defined.
-* adds event listeners to the document.
-* renders the application template.
-* creates a router.</p>
+<p>This creates an Ember application object called App, but you can call it whatever you want. This:</p>
+
+<ul>
+<li>sets up the application's namespace in which all your Ember classes will be defined.</li>
+<li>adds event listeners to the document.</li>
+<li>renders the application template.</li>
+<li>creates a router.</li>
+</ul>
+
 
 <p>The application template is the top-level, default template rendered when you start your app. You can put headers and footers in it. It must have at least one <code>{{outlet}}</code>, a placeholder used by the router to place other templates based on the application's state.</p>
 
