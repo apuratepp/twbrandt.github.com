@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+        <meta charset="utf-8"/>
+        <title> Home |  Tom Brandt</title>
+        <link rel="stylesheet" href="/styles/style.css" />
+        <link rel="stylesheet" href="/styles/pygments.css" />
+	</head>
+
+	<body>
+		<div id="header">
+            <h1>Tom Brandt</h1>
+			<hr />
+		</div>
+
+		<div id="sidebar">
+			<div id="sidebar-content">
+			<p>I am a senior software developer at <a href="http://systemsinmotion.com">
+				Systems in Motion</a> and a co-owner of <a href="http://workantile.com">
+				Workantile</a>. I do primarily back-end development in Rails, but have
+				recently taken a [probably unwise] interest in front-end developemt.</p>
+			</div>
+		</div>
+
+		<div id="content">
+
+			<!-- Show last 5 posts here -->
+
+	
+	<div class="post">
+
+		<span class="date">11 Feb 2013</span>
+	
+		<div class="entry"><h1>Getting Started With Ember.js</h1>
+
+<h2>Prologue</h2>
+
+<p>This quick-start guide is aimed at developers who are familiar with javascript and want to get a small Ember app going without plowing through pages and pages of documentation. Along the way, I will explain basic Ember concepts you will need for a basic understanding of the Ember framework.</p>
+
+<p>For an argument on why you should use Ember, please see Trek Glowacki's <a href="http://trek.github.com/">Advice on &amp; Instruction in the Use of Ember.js</a>. For comprehensive documentation on Ember, please see <a href="http://emberjs.com">Emberjs.com</a>. I hope that neither Trek nor the authors of the documentation at Emberjs.com mind that I shamelessly stole a bunch of their material for this guide. Errors, omissions, and general stupidity are all mine.</p>
+
+<p>I have based this guide on Ember 1.0.0-pre.4, Handlebars 1.2.rc.2, and JQuery 1.9, the most recent releases of the packages at the time I wrote this.</p>
+
+<h2>Concepts</h2>
+
+<p>If you are familiar with Rails or other server-side MVC frameworks, most of the concepts used in Ember will look familiar to you, but keep in mind there necessarily are differences in client-side and server-side MVC. Here are the core concepts you need to know:</p>
+
+<p><em>Templates</em> specify your application's user interface. They are built using the <a href="http://handlebarsjs.com/">Handlebars</a> templating language. They can contain HTML, plus:</p>
+
+<ul>
+<li>expressions, which take information from controllers and model objects and place them in the page.</li>
+<li>outlets, which are placeholders for other templates.</li>
+<li>views, which handle user events.</li>
+</ul>
+
+
+<p><em>Views</em> take user events, like clicks, and translates them into events implemented by your application. For example, a user could click a <code>New user</code> button, and the view would translate that to a <code>newUser</code> event implemented by your application.</p>
+
+<p><em>Controllers</em> store application state. Templates connect to controllers and render state information from the controllers into HTML. Controllers can pass model object properties onto the template, and can store properties which do not belong to any model object.</p>
+
+<p><em>Models</em> are objects that store persistent state. Model objects are typically loaded from the server, acted on by your application's user, and stored back to the server.</p>
+
+<p>The <em>router</em> is the object which manages application state. As your application's user moves around in the app, the router makes sure the right templates are displayed and connected to correct controllers and model objects. The router keeps the URL up-to-date, so your users can save the URL and come back to the application later in the state in which they left it.</p>
+
+<h2>Setup</h2>
+
+<p>For this demo, the top-level directory (the root) contains the index.html file and a subdirectory called /js. The /js directory has four files:</p>
+
+<ul>
+<li>ember.js - contains Ember 1.0.0-pre.4 downloaded from <a href="http://emberjs.com">Emberjs.com</a>.</li>
+<li>handlebars.js - contains Handlebars 1.2.rc.2, downloaded from <a href="http://handlebarsjs.com">Handlebarsjs.com</a>.</li>
+<li>jquery.js - contains jQuery 1.9.1, downloaded from <a href="http://jquery.com">jQuery.com</a>.</li>
+<li>app.js - the Ember code we are writing lives here.</li>
+</ul>
+
+
+<p>This is index.html with the libraries loaded in the right order:</p>
+
+<div class="highlight"><pre><code class="text">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;EmberDemo&lt;/title&gt;
+  &lt;script src=&quot;/js/jquery.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;/js/handlebars.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;/js/ember.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;/js/app.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre></div>
+
+
+<p>You may want to fire up your favorite webserver at this point and make sure this loads without errors showing up on the console.</p>
+
+<h2>Creating the Ember app</h2>
+
+<p>Instantiate the Ember app in js/app.js:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="k">this</span><span class="p">.</span><span class="nx">App</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">create</span><span class="p">();</span>
+</code></pre></div>
+
+
+<p>This creates an Ember application object called App, but you can call it whatever you want. This:
+* sets up the application's namespace in which all your Ember classes will be defined.
+* adds event listeners to the document.
+* renders the application template.
+* creates a router.</p>
+
+<p>The application template is the top-level, default template rendered when you start your app. You can put headers and footers in it. It must have at least one <code>{{outlet}}</code>, a placeholder used by the router to place other templates based on the application's state.</p>
+
+<p>You can put the application template in the html document, either in the head or the body:</p>
+
+<div class="highlight"><pre><code class="text">&lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;application&quot;&gt;
+  &lt;div&gt;
+    {{outlet}}
+  &lt;/div&gt;
+&lt;/script&gt;
+</code></pre></div>
+
+
+<p>The application template does not require a <code>data-template-name</code> attribute, but all other templates do. The <code>{{outlet}}</code> is where the router will place the other templates our little app will use.</p>
+
+<p>The application controller is instantiated automatically for us, so we don't have to explicitly do so. But if we want to pass things on to the application template, we can define the application controller class ourselves by extending the Controller class and defining some properties:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">ApplicationController</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Controller</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">firstName</span><span class="o">:</span> <span class="s2">&quot;Tom&quot;</span><span class="p">,</span>
+  <span class="nx">lastName</span><span class="o">:</span> <span class="s2">&quot;Brandt&quot;</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<p>and rendering them in our application template like this:</p>
+
+<div class="highlight"><pre><code class="text">&lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;application&quot;&gt;
+  Hello, {{firstName}} {{lastName}}&lt;br /&gt;
+  &lt;div&gt;
+    {{outlet}}
+  &lt;/div&gt;
+&lt;/script&gt;
+</code></pre></div>
+
+
+<h2>Routes</h2>
+
+<p>The router is responsible for loading templates, connecting them to right controller, and maintaining application state. It does this by matching the current URL to the routes defined in our app.</p>
+
+<p>This defines a route called <code>contributors</code>:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">Router</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">route</span><span class="p">(</span><span class="s1">&#39;contributors&#39;</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<p>Defining a route sets up a route handler, which ties together the URL, template, and controller for that route. The route's controller is automatically set up by Ember.</p>
+
+<p>The default route <a href="/">/</a>, called <code>index</code>, is set up automatically by Ember. When our user visits <a href="/">/</a>, Ember renders the <code>index</code> template. When our user visits <a href="/contributors">/contributors</a>, Ember renders the <code>contributors</code> template.</p>
+
+<p>We can modify the default behavior of a route by defining our own route subclass. For example, we can change what would normally happen when our user visits <a href="/">/</a> by defining an <code>App.IndexRoute</code>:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">IndexRoute</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">setupController</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">controller</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// This sets the IndexController&#39;s title property:</span>
+    <span class="nx">controller</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s2">&quot;The is the index controller&quot;</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<p>We can now display the title in our <code>index</code> template:</p>
+
+<div class="highlight"><pre><code class="text">&lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;index&quot;&gt;
+  &lt;div&gt;{{title}}&lt;/div&gt;
+&lt;/script&gt;
+</code></pre></div>
+
+
+<h2>Models</h2>
+
+<p>A model object stores persistent state; that is, data that is not destroyed when we shut down our app. Objects are usually created from json streamed from a server, and saved back to the server if the user changes them.</p>
+
+<p>In our little demo, we are going to create a <code>Contributor</code> class and instantiate a collection of <code>contributor</code> objects, each of which represents a contributor to the Ember project. Then, we are going to tie the model objects to the <code>contributors</code> route and display them on the page.</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">Contributor</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nb">Object</span><span class="p">.</span><span class="nx">extend</span><span class="p">();</span>
+<span class="nx">App</span><span class="p">.</span><span class="nx">Contributor</span><span class="p">.</span><span class="nx">reopenClass</span><span class="p">({</span>
+  <span class="nx">allContributors</span><span class="o">:</span> <span class="p">[],</span>
+  <span class="nx">all</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">allContributors</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+      <span class="nx">url</span><span class="o">:</span> <span class="s1">&#39;https://api.github.com/repos/emberjs/ember.js/contributors&#39;</span><span class="p">,</span>
+      <span class="nx">dataType</span><span class="o">:</span> <span class="s1">&#39;jsonp&#39;</span><span class="p">,</span>
+      <span class="nx">context</span><span class="o">:</span> <span class="k">this</span><span class="p">,</span>
+      <span class="nx">success</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+        <span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">contributor</span><span class="p">){</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">allContributors</span><span class="p">.</span><span class="nx">addObject</span><span class="p">(</span><span class="nx">App</span><span class="p">.</span><span class="nx">Contributor</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">contributor</span><span class="p">))</span>
+        <span class="p">},</span> <span class="k">this</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">})</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">allContributors</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<p>Let's unpack this. The <code>extend</code> method creates a subclass of a class. The above creates the <code>Contributor</code> class, which is actually a subclass of <code>Ember.Object</code> and inherits from it.</p>
+
+<p>Next, we add some methods to the class via the <code>reopenClass</code> method. The first thing we do is add an array, <code>allContributors</code>, to our class which will hold the individual objects returned from the server.</p>
+
+<p>Next, we define an <code>all</code> method. It:
+* empties the <code>allContributors</code> array. If we don't do this, the next time this method is invoked the data we get back from the server is appended to the data we retrieved previously.
+* performs an ajax call which invokes a <a href="http://developer.github.com/v3/repos/#list-contributors">github api call</a>, creates <code>contributor</code> objects from the response, and appends them to the array.
+* returns the array as the content property of the model.</p>
+
+<p>To tie the model to the <code>contributors</code> route, we define a route subclass:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">ContributorsRoute</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">model</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Contributor</span><span class="p">.</span><span class="nx">all</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<p>The <code>model</code> hook in the subclass associates the <code>Contributor</code> class and <code>all</code> function with the <code>contributors</code> route.</p>
+
+<p>Now, let's set up a template to list the contributors:</p>
+
+<div class="highlight"><pre><code class="text">&lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;contributors&quot;&gt;
+  &lt;ul&gt;
+    {{#each contributor in controller}}
+      &lt;li&gt;{{contributor.login}}&lt;/li&gt;
+    {{/each}}
+    &lt;/ul&gt;
+&lt;/script&gt;
+</code></pre></div>
+
+
+<p>The <code>#each</code> iterates over the array returned by the model via the controller, and renders a list item containing the login id of each contributor.</p>
+
+<p>So our user does not have to manually type <a href="/contributors">/contributors</a> to see the list, we are going to add a link to our application template:</p>
+
+<div class="highlight"><pre><code class="text">&lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;application&quot;&gt;
+  Hello, {{firstName}} {{lastName}}&lt;br /&gt;
+  &lt;nav&gt;
+    {{#linkTo &quot;index&quot;}}Home{{/linkTo}}
+    {{#linkTo &quot;contributors&quot;}}Contributors{{/linkTo}}
+  &lt;/nav&gt;
+  &lt;div&gt;
+    {{outlet}}
+  &lt;/div&gt;
+&lt;/script&gt;
+</code></pre></div>
+
+
+<p>The argument following <code>#linkto</code> is the name of the route to navigate to.</p>
+
+<h2>Dynamic Segments</h2>
+
+<p>We may want to display something about each contributor in the list. Ember gives us a nice way of doing that via <em>dynamic segments</em>.</p>
+
+<p>A dynamic segment is a part of a URL that starts with a : and is followed by an identifier.</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">Router</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">route</span><span class="p">(</span><span class="s1">&#39;contributors&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">route</span><span class="p">(</span><span class="s1">&#39;contributor&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">path</span><span class="o">:</span> <span class="s1">&#39;/contributors/:contributor_id&#39;</span><span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<p>Here, we have set up a route called <code>contributor</code>. If the id of the contributor we want is <em>4</em>, the URL would be <a href="/contributors/4">/contributors/4</a>.</p>
+
+<p>We can modify our <code>contributors</code> template to add a link to each individual contributor as follows:</p>
+
+<div class="highlight"><pre><code class="text">&lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;contributors&quot;&gt;
+  &lt;ul&gt;
+    {{#each contributor in controller}}
+      &lt;li&gt;{{#linkTo contributor contributor}} {{contributor.login}} {{/linkTo}}&lt;/li&gt;
+    {{/each}}
+  &lt;/ul&gt;
+&lt;/script&gt;
+</code></pre></div>
+
+
+<p>The first argument to #linkTo specifies the route, the second specifies the id of the contributor object.</p>
+
+<p>Now, we define a <code>contributor</code> template to display various properties of the contributor.</p>
+
+<div class="highlight"><pre><code class="text">&lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;contributor&quot;&gt;
+  Contributor: {{login}}, contributions: {{contributions}}
+&lt;/script&gt;
+</code></pre></div>
+
+
+<p>That's it.</p>
+
+<h2>Epilogue</h2>
+
+<p><strong>But wait, that can't be it!</strong>, I hear you cry. <strong>You haven't set up the contributor controller or tied it to the contributor route. Nor did you define a method in the model to return a single contributor object.</strong></p>
+
+<p>No, I haven't. Ember did it for me.</p>
+
+<p>Let's review. In App.Router.map, I set up this route:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="k">this</span><span class="p">.</span><span class="nx">route</span><span class="p">(</span><span class="s1">&#39;contributor&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">path</span><span class="o">:</span> <span class="s1">&#39;/contributors/:contributor_id&#39;</span><span class="p">});</span>
+</code></pre></div>
+
+
+<p>Defining the <code>contributor</code> route automatically sets up the <code>contributor</code> model.</p>
+
+<p>We could have written this bit of code to tell this route to use <code>App.Contibutor.find</code>:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">ContributorRoute</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">model</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Contributor</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">params</span><span class="p">.</span><span class="nx">contributor_id</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<p>but because this is such a common pattern the model hook above is the default behavior. Because the dynamic segment is <code>:contributor_id</code>, Ember knows to use <code>App.Contributor.find(params.contributor_id)</code> without being told, and we don't need to write out the above code.</p>
+
+<p>Ember also automatically defines a <code>find</code> method for models which returns a single model object given an id. This means we don't need to define a <code>find</code> method for App.Contributor, Ember does that for us. All we have to do is pass it an id.</p>
+
+<p>This little guide just skims the suface of Ember and omits a great deal of important stuff, but I hope gives you an idea of how powerful Ember is. Please do read <a href="http://trek.github.com/">Trek's article</a>, and get familiar with the Ember docs to get a much better idea of Ember.</p>
+
+<h2>Source</h2>
+
+<p><strong>index.html</strong></p>
+
+<div class="highlight"><pre><code class="text">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;EmberDemo&lt;/title&gt;
+  &lt;script src=&quot;/js/jquery.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;/js/handlebars.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;/js/ember.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;/js/app.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+
+  &lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;application&quot;&gt;
+    Hello, {{firstName}} {{lastName}}&lt;br /&gt;
+    &lt;nav&gt;
+      {{#linkTo &quot;index&quot;}}Home{{/linkTo}}
+      {{#linkTo &quot;contributors&quot;}}Contributors{{/linkTo}}
+      &lt;/nav&gt;
+    &lt;div&gt;
+      {{outlet}}
+    &lt;/div&gt;
+  &lt;/script&gt;
+
+  &lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;index&quot;&gt;
+    &lt;div&gt;{{title}}&lt;/div&gt;
+  &lt;/script&gt;
+  
+  &lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;contributors&quot;&gt;
+    &lt;ul&gt;
+      {{#each contributor in controller}}
+        &lt;li&gt;{{#linkTo contributor contributor}} {{contributor.login}} {{/linkTo}}&lt;/li&gt;
+      {{/each}}
+      &lt;/ul&gt;
+  &lt;/script&gt;
+  
+  &lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;contributor&quot;&gt;
+    Contributor: {{login}}, contributions: {{contributions}}
+  &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre></div>
+
+
+<p><strong>app.js</strong></p>
+
+<div class="highlight"><pre><code class="javascript"><span class="k">this</span><span class="p">.</span><span class="nx">App</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">create</span><span class="p">();</span>
+
+<span class="nx">App</span><span class="p">.</span><span class="nx">ApplicationController</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Controller</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">firstName</span><span class="o">:</span> <span class="s2">&quot;Tom&quot;</span><span class="p">,</span>
+  <span class="nx">lastName</span><span class="o">:</span> <span class="s2">&quot;Brandt&quot;</span>
+<span class="p">});</span>
+
+<span class="nx">App</span><span class="p">.</span><span class="nx">Router</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">route</span><span class="p">(</span><span class="s1">&#39;contributors&#39;</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">route</span><span class="p">(</span><span class="s1">&#39;contributor&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">path</span><span class="o">:</span> <span class="s1">&#39;/contributors/:contributor_id&#39;</span><span class="p">});</span>
+<span class="p">});</span>
+
+<span class="nx">App</span><span class="p">.</span><span class="nx">IndexRoute</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">setupController</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">controller</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">controller</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s2">&quot;The is the index controller&quot;</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="nx">App</span><span class="p">.</span><span class="nx">ContributorsRoute</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">model</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Contributor</span><span class="p">.</span><span class="nx">all</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="nx">App</span><span class="p">.</span><span class="nx">Contributor</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nb">Object</span><span class="p">.</span><span class="nx">extend</span><span class="p">();</span>
+<span class="nx">App</span><span class="p">.</span><span class="nx">Contributor</span><span class="p">.</span><span class="nx">reopenClass</span><span class="p">({</span>
+  <span class="nx">allContributors</span><span class="o">:</span> <span class="p">[],</span>
+  <span class="nx">all</span><span class="o">:</span> <span class="kd">function</span><span class="p">(){</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">allContributors</span> <span class="o">=</span> <span class="p">[];</span>
+    <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+      <span class="nx">url</span><span class="o">:</span> <span class="s1">&#39;https://api.github.com/repos/emberjs/ember.js/contributors&#39;</span><span class="p">,</span>
+      <span class="nx">dataType</span><span class="o">:</span> <span class="s1">&#39;jsonp&#39;</span><span class="p">,</span>
+      <span class="nx">context</span><span class="o">:</span> <span class="k">this</span><span class="p">,</span>
+      <span class="nx">success</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">response</span><span class="p">){</span>
+        <span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">contributor</span><span class="p">){</span>
+          <span class="k">this</span><span class="p">.</span><span class="nx">allContributors</span><span class="p">.</span><span class="nx">addObject</span><span class="p">(</span><span class="nx">App</span><span class="p">.</span><span class="nx">Contributor</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">contributor</span><span class="p">))</span>
+        <span class="p">},</span> <span class="k">this</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">})</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">allContributors</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+
+</div>
+
+	</div>
+
+	
+
+
+
+		</div>
+
+		<div id="footer">
+			<hr />
+            <p>&copy; 2013 Tom Brandt</p>
+		</div>
+
+	</body>
+
+</html>
