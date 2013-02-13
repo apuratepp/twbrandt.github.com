@@ -207,10 +207,14 @@
 
 <p>Next, we add some methods to the class via the <code>reopenClass</code> method. The first thing we do is add an array, <code>allContributors</code>, to our class which will hold the individual objects returned from the server.</p>
 
-<p>Next, we define an <code>all</code> method. It:
-* empties the <code>allContributors</code> array. If we don't do this, the next time this method is invoked the data we get back from the server is appended to the data we retrieved previously.
-* performs an ajax call which invokes a <a href="http://developer.github.com/v3/repos/#list-contributors">github api call</a>, creates <code>contributor</code> objects from the response, and appends them to the array.
-* returns the array as the content property of the model.</p>
+<p>Next, we define an <code>all</code> method. It:</p>
+
+<ul>
+<li>empties the <code>allContributors</code> array. If we don't do this, the next time this method is invoked the data we get back from the server is appended to the data we retrieved previously.</li>
+<li>performs an ajax call which invokes a <a href="http://developer.github.com/v3/repos/#list-contributors">github api call</a>, creates <code>contributor</code> objects from the response, and appends them to the array.</li>
+<li>returns the array as the content property of the model.</li>
+</ul>
+
 
 <p>To tie the model to the <code>contributors</code> route, we define a route subclass:</p>
 
