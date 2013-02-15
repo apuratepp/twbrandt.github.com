@@ -307,32 +307,6 @@
 
 <h2>Epilogue</h2>
 
-<p><strong>But wait, that can't be it!</strong>, I hear you cry. <strong>You haven't set up the contributor controller or tied it to the contributor route. Nor did you define a method in the model to return a single contributor object.</strong></p>
-
-<p>No, I haven't. Ember did it for me.</p>
-
-<p>Let's review. In App.Router.map, I set up this route:</p>
-
-<div class="highlight"><pre><code class="javascript"><span class="k">this</span><span class="p">.</span><span class="nx">route</span><span class="p">(</span><span class="s1">&#39;contributor&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">path</span><span class="o">:</span> <span class="s1">&#39;/contributors/:contributor_id&#39;</span><span class="p">});</span>
-</code></pre></div>
-
-
-<p>Defining the <code>contributor</code> route automatically sets up the <code>contributor</code> controller.</p>
-
-<p>We could have written this bit of code to tell this route to use <code>App.Contibutor.find</code>:</p>
-
-<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">ContributorRoute</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-  <span class="nx">model</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Contributor</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">params</span><span class="p">.</span><span class="nx">contributor_id</span><span class="p">);</span>
-  <span class="p">}</span>
-<span class="p">});</span>
-</code></pre></div>
-
-
-<p>but because this is such a common pattern the model hook above is the default behavior. Because the dynamic segment is <code>:contributor_id</code>, Ember knows to use <code>App.Contributor.find(params.contributor_id)</code> without being told, and we don't need to write out the above code.</p>
-
-<p>Ember also automatically defines a <code>find</code> method for models which returns a single model object given an id. This means we don't need to define a <code>find</code> method for App.Contributor, Ember does that for us. All we have to do is pass it an id.</p>
-
 <p>This little guide just skims the suface of Ember and omits a great deal of important stuff, but I hope gives you an idea of how powerful Ember is. Please do read <a href="http://trek.github.com/">Trek's article</a>, and get familiar with the Ember docs to get a much better idea of Ember.</p>
 
 <h2>Source</h2>
