@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<link href='http://fonts.googleapis.com/css?family=Libre+Baskerville:400,700' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+        <meta charset="utf-8"/>
+        <title> Getting Started with Ember Data |  Tom Brandt</title>
+        <link rel="stylesheet" href="/styles/style.css" />
+        <link rel="stylesheet" href="/styles/pygments.css" />
+	</head>
+
+	<body>
+		<div id="header">
+            <h1><a href="https://twbrandt.github.com">Tom Brandt</a></h1>
+			<hr />
+		</div>
+
+		<div id="sidebar">
+			<div id="sidebar-content">
+			<p>I am a senior software developer with <a href="http://systemsinmotion.com">
+				Systems in Motion</a> and a co-owner of <a href="http://workantile.com">
+				Workantile</a>. I do primarily back-end development in Rails, but have
+				recently taken a [probably unwise] interest in front-end developemt.</p>
+			<p>Follow me at <a href="http://twitter.com/twbrandt">@twbrandt</a></p>
+			</div>
+		</div>
+
+		<div id="content">
+
+			<div class="post">
+
+    <h2>Getting Started with Ember Data</h2>
+
+    <span class="date">22 Feb 2013</span><br>
+
+	<div class="entry"><h1>Getting Started With Ember Data</h1>
+
+<h2>Prologue</h2>
+
+<p>This quick-start guide is aimed at developers who are familiar with javascript, have a basic understanding of Ember, and want to get a small Ember app going using Ember Data. Along the way, I will explain basic Ember Data concepts you will need for a basic understanding of the Ember Data library. This guide builds on <a href="/2013/02/11/Ember-Quick_Start_Guide/">Getting Started with Ember.js</a>.</p>
+
+<p>I have based this guide on Ember 1.0.0-rc.1, Ember Data revision 11, Handlebars 1.0.0-rc.3, and JQuery 1.9. Ember 1.0.0-rc.1 and Ember Data revision 11 are the most recent releases at the time I wrote this. Please note that Ember Data is not yet considered stable. For more complete documentation, please see the <a href="https://github.com/emberjs/data">Ember Data github page</a> and the <a href="http://emberjs.com/guides/models/">guide</a>.</p>
+
+<p>This guide uses a small model retrieved from a Rails server. This entire project, including the Rails and Ember apps, can be found on my <a href="https://github.com/twbrandt/ember_data_demo">github repo</a>.</p>
+
+<p>Please send error corrections and clarifications to twbrandt [at] gmail [dot] com. Thanks!</p>
+
+<h2>Concepts</h2>
+
+<p>Ember Data is a library which makes it easy to retrieve records from a server, change them in the browser, and save them back to the server. Out of the box, Ember Data can retrieve and save records via JSON from a RESTful server which follow certain conventions. However, if you are working with a server that does not follow these conventions, it is easy to configure Ember Data to wotk with it.</p>
+
+<p>All Ember apps using Ember Data use a repository called a store. The store retrieves models from the server, holds the loaded models, and saves them back to the server. The store uses the built-in REST adapter to connect to the server.</p>
+
+<p>The REST adapter assumes that the URL and JSON associated with each model follow certain conventions. If they do, you don't need to write any code to get it to work with the server. These conventions will be covered in later sections.</p>
+
+<h2>Setup</h2>
+
+<p>This demo is setup the same way the <a href="/2013/02/11/Ember-Quick_Start_Guide/">Getting Start with Ember.js quick start guide</a> is, with the addition of the Ember Data library and a small style sheet.</p>
+
+<div class="highlight"><pre><code class="html"><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+  <span class="nt">&lt;title&gt;</span>Ember Data Demo<span class="nt">&lt;/title&gt;</span>
+  <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">href=</span><span class="s">&quot;/style/styles.css&quot;</span> <span class="na">type=</span><span class="s">&quot;text/css&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;/js/jquery.js&quot;</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;/js/handlebars.js&quot;</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;/js/ember.js&quot;</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;/js/ember-data.js&quot;</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;/js/app.js&quot;</span> <span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+<span class="nt">&lt;body&gt;</span>
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre></div>
+
+
+<p>Currently, the library is not part of the standard Ember distribution. You need to download it from <a href="https://github.com/emberjs/data">github</a> and build it yourself. The github page provides instructions and it is easy to do.</p>
+
+<h2>Store</h2>
+
+<p>The store holds loaded models and interfaces with the server via the REST adapter. To tell Ember that Ember Data will manage your models, you define a subclass of <code>DS.Store</code> in your Ember application:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">Store</span> <span class="o">=</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">Store</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">revision</span><span class="o">:</span> <span class="mi">11</span><span class="p">,</span>
+  <span class="nx">url</span><span class="o">:</span> <span class="s2">&quot;http://www.example.com&quot;</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<p>The <code>revision</code> property is the API revision number, with 11 being the most recent revison as of this writing. It is used by Ember Data to tell you of breaking changes to the API. It will be removed when Ember Data reaches 1.0. Please see the <a href="htpps://github.com/emberjs/data/blob/master/BREAKING_CHANGES.md">Breaking Changes</a> document for more information.</p>
+
+<p>The <code>url</code> property is the base URL of the server. The REST adapter uses this, plus the model name, to determine the URL to use to communicate with the server.</p>
+
+<h2>Models</h2>
+
+<p>For each model you want to use in your app, you define a subclass of <code>DS.Model</code>.</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">Post</span> <span class="o">=</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">),</span>
+  <span class="nx">body</span><span class="o">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">)</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<p>The <code>DS.attr</code> specify attributes of the model. The REST adapter supports attribute types of <code>string</code>, <code>number</code>, <code>boolean</code>, and <code>date</code>.</p>
+
+<p>In the previous guide, we defined a method in our model to make an ajax request to the server and retrieve data. Because we are now using Ember Data, we are relying on the REST adapter to handle ajax calls to the server. We don't need to define methods on our model to deal with the server if the server is a RESTful server.</p>
+
+<h2>Server URL conventions</h2>
+
+<p>The REST adapter figures out the server URL to use from the <code>url</code> property, the model name, and the operation. For example, if we wanted to get all the posts:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">posts</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">find</span><span class="p">();</span>
+</code></pre></div>
+
+
+<p>The REST adapter will send an ajax <code>GET</code> to <code>http://www.example.com/posts</code>.</p>
+
+<p>If we wanted to find a particular post:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="kd">var</span> <span class="nx">posts</span> <span class="o">=</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</code></pre></div>
+
+
+<p>The REST adapter will send an ajax <code>GET</code> to <code>http://www.example.com/posts/1</code>.</p>
+
+<p>The following maps actions you can take on a record to URLs used by the adapter:</p>
+
+<table>
+<thead>
+<tr>
+<th>Action      </th>
+<th>HTTP verb </th>
+<th>URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Find        </td>
+<td>GET       </td>
+<td>/posts/1</td>
+</tr>
+<tr>
+<td>Find all    </td>
+<td>GET       </td>
+<td>/posts</td>
+</tr>
+<tr>
+<td>Update      </td>
+<td>PUT       </td>
+<td>/posts/1</td>
+</tr>
+<tr>
+<td>Create      </td>
+<td>POST      </td>
+<td>/posts</td>
+</tr>
+<tr>
+<td>Delete      </td>
+<td>DELETE    </td>
+<td>/posts/1</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>We will talk about how to trigger these actions a little later in this guide.</p>
+
+<h2>JSON Conventions</h2>
+
+<p>The REST adapter expects the data coming back from the server to follow certain conventions.</p>
+
+<p>The primary record or records being returned should be in a named root. If you request single post, say <code>posts/1</code>, the response should look like:</p>
+
+<div class="highlight"><pre><code class="json"><span class="p">{</span>
+    <span class="nt">&quot;post&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;a title&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;body&quot;</span><span class="p">:</span> <span class="s2">&quot;a body&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>If you request  <code>posts</code>, the reponse should look like:</p>
+
+<div class="highlight"><pre><code class="json"><span class="p">{</span>
+    <span class="nt">&quot;posts&quot;</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;a title&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;body&quot;</span><span class="p">:</span> <span class="s2">&quot;a body&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;another title&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;body&quot;</span><span class="p">:</span> <span class="s2">&quot;another body&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;a third title&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;body&quot;</span><span class="p">:</span> <span class="s2">&quot;a third body&quot;</span>
+    <span class="p">}]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>The attribute names in the JSON object should be underscored versions of the attributes in your model. If we receive JSON objects that look like this:</p>
+
+<div class="highlight"><pre><code class="json"><span class="p">{</span>
+    <span class="nt">&quot;person&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="nt">&quot;first_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Tom&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Brandt&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>your model should look like this:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">Person</span> <span class="o">=</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">Model</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">firstName</span><span class="o">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">),</span>
+  <span class="nx">lastName</span><span class="o">:</span> <span class="nx">DS</span><span class="p">.</span><span class="nx">attr</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">)</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<h2>Loading Data</h2>
+
+<p>Let's set up some templates so the user can see a lists of posts. We will set up the <code>application</code>, <code>index</code>, and <code>posts</code> templates so the user can navigate around our app. These look pretty much like they did in the previous guide:</p>
+
+<div class="highlight"><pre><code class="text">&lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;application&quot;&gt;
+    &lt;div id=&quot;top&quot;&gt;
+      Hello, {{firstName}} {{lastName}}&lt;br /&gt;
+      &lt;nav&gt;
+        {{#linkTo &quot;index&quot;}}Home{{/linkTo}}
+        {{#linkTo &quot;posts&quot;}}Posts{{/linkTo}}
+        &lt;/nav&gt;
+      &lt;div id=&quot;container&quot;&gt;
+        {{outlet}}
+      &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/script&gt;
+&lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;index&quot;&gt;
+    &lt;div&gt;{{title}}&lt;/div&gt;
+&lt;/script&gt;
+&lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;posts&quot;&gt;
+    &lt;div id=&quot;sidebar&quot;&gt;
+      &lt;ul&gt;
+        {{#each post in controller}}
+          &lt;li&gt;
+            {{post.title}}
+          &lt;/li&gt;
+        {{/each}}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+&lt;/script&gt;
+</code></pre></div>
+
+
+<p>Our routes look like this:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">Router</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">resource</span><span class="p">(</span><span class="s1">&#39;posts&#39;</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="nx">App</span><span class="p">.</span><span class="nx">PostsRoute</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">model</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">find</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<p>Our <code>PostsRoute</code> associates the <code>posts</code> template with the <code>Post.find</code> method. When we defined the <code>Post</code> model as a subclass of <code>DS.Store</code>, Ember Data automatically set up the <code>find</code> method to send an ajax <code>GET</code> request to <code>http://www.example.com/posts</code>. When the user clicks the <a href="posts">Posts</a> link, the router will fetch the <code>posts</code> template and Ember Data will issue the ajax call. When the response comes back, the data will be rendered by the template.</p>
+
+<h2>Modifying and Saving Data</h2>
+
+<p>We are going to modify our templates and routes so the user can click on a post and be shown a form where they can modify attributes and save the changes.</p>
+
+<p>The routes look like this:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">Router</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">resource</span><span class="p">(</span><span class="s1">&#39;posts&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">resource</span><span class="p">(</span><span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">path</span><span class="o">:</span> <span class="s1">&#39;:post_id&#39;</span><span class="p">});</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<p>Notice that the <code>post</code> route is defined as a nested resource of the <code>posts</code> route. This means we need to provide an <code>{{outlet}}</code> in our <code>posts</code> template where the <code>post</code> template will go.</p>
+
+<div class="highlight"><pre><code class="text">  &lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;posts&quot;&gt;
+    &lt;div id=&quot;sidebar&quot;&gt;
+      &lt;ul&gt;
+        {{#each post in controller}}
+          &lt;li&gt;
+            {{#linkTo post post}} {{post.title}} {{/linkTo}}
+          &lt;/li&gt;
+        {{/each}}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+    &lt;div id=&quot;content&quot;&gt;
+      {{outlet}}
+    &lt;/div&gt;
+  &lt;/script&gt;
+  &lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;post&quot;&gt;
+    &lt;form {{action save on=&quot;submit&quot;}}&gt;
+      {{view Ember.TextField valueBinding=&quot;title&quot; id=&quot;title&quot; placeholder=&quot;Title&quot; required=&quot;true&quot;}}&lt;br /&gt;
+      {{view Ember.TextArea valueBinding=&quot;body&quot; id=&quot;body&quot; placeholder=&quot;Body&quot; required=&quot;true&quot;}}&lt;br /&gt;
+      &lt;button type=&quot;submit&quot;&gt;Update post&lt;/button&gt;
+    &lt;/form&gt;
+  &lt;/script&gt;
+</code></pre></div>
+
+
+<p>As in the previous guide, we have set up a link on each the title of each post. When the user clicks on the link, the <code>post</code> template is rendered with post they selected. The <code>post</code> will be rendered in the <code>{{outlet}}</code> in the <code>content</code> div.</p>
+
+<p>In the <code>post</code> template, we are rendering a form with a couple of Ember pre-defined views: <code>Ember.TextField</code> and <code>Ember.TextArea</code>. When the user clicks the <code>submit</code> button, it causes the <code>save</code> method in the controller to be invoked:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">PostController</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">ObjectController</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">save</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;content&#39;</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;store&#39;</span><span class="p">).</span><span class="nx">commit</span><span class="p">();</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;target.router&#39;</span><span class="p">).</span><span class="nx">transitionTo</span><span class="p">(</span><span class="s1">&#39;posts.index&#39;</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<p>The <code>save</code> function gets the model object and <code>commit</code>s the change. Again, Ember Data knows to make an ajax <code>PUT</code> request to <code>http://www.example.com/posts/:post_id</code>. We don't have to define the request.</p>
+
+<p>Finally, the function tells the router to trasnsiton back to <code>posts.index</code>, which is the Ember longhand form of the <code>posts</code> route.</p>
+
+<h2>Adding an Object</h2>
+
+<p>So users can add posts, we need to modify our templates:</p>
+
+<div class="highlight"><pre><code class="text">  &lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;posts&quot;&gt;
+    &lt;div id=&quot;sidebar&quot;&gt;
+      {{#linkTo &#39;posts.new&#39;}}&lt;button&gt;Add new post&lt;/button&gt;{{/linkTo}}
+      &lt;ul&gt;
+        {{#each post in controller}}
+          &lt;li&gt;
+            {{#linkTo post post}} {{post.title}} {{/linkTo}}
+          &lt;/li&gt;
+        {{/each}}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+    &lt;div id=&quot;content&quot;&gt;
+      {{outlet}}
+    &lt;/div&gt;
+  &lt;/script&gt;  
+  &lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;new&quot;&gt;
+    &lt;form {{action save on=&quot;submit&quot;}}&gt;
+      {{partial &quot;post_fields&quot;}}
+      &lt;button type=&quot;submit&quot;&gt;Save post&lt;/button&gt;
+    &lt;/form&gt;
+  &lt;/script&gt;
+  &lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;post&quot;&gt;
+    &lt;form {{action save on=&quot;submit&quot;}}&gt;
+      {{partial &quot;post_fields&quot;}}
+      &lt;button type=&quot;submit&quot;&gt;Update post&lt;/button&gt;
+    &lt;/form&gt;
+  &lt;/script&gt;
+  &lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;_post_fields&quot;&gt;
+    {{view Ember.TextField valueBinding=&quot;title&quot; id=&quot;title&quot; placeholder=&quot;Title&quot; required=&quot;true&quot;}}&lt;br /&gt;
+    {{view Ember.TextArea valueBinding=&quot;body&quot; id=&quot;body&quot; placeholder=&quot;Body&quot; required=&quot;true&quot;}}&lt;br /&gt;
+  &lt;/script&gt;
+</code></pre></div>
+
+
+<p>We have added a button which, when clicked, navigates to the <code>posts.new</code> route.</p>
+
+<p>One of the nice things in Ember is the ability to set up partials so that common UI elements may be reused in different templates. Here, we moved the form elements to a partial named <code>_post_fields</code>. The names of partials must have a leading underline. Then we simply referenced the partial in the <code>new</code> and <code>post</code> templates.</p>
+
+<p>Here is the <code>posts.new</code> route:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">Router</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">resource</span><span class="p">(</span><span class="s1">&#39;posts&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">route</span><span class="p">(</span><span class="s1">&#39;new&#39;</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">resource</span><span class="p">(</span><span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">path</span><span class="o">:</span> <span class="s1">&#39;:post_id&#39;</span><span class="p">});</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+
+<span class="nx">App</span><span class="p">.</span><span class="nx">PostsNewRoute</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">Route</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">setupController</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">controller</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">controller</span><span class="p">.</span><span class="nx">newRecord</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<p>Note that <code>posts.new</code> is defined as route, while <code>posts</code> and <code>posts.post</code> are defined as resources. The convention in Ember is that <em>nouns</em> are defined as resources, while <em>verbs</em> and <em>adjectives</em> modifying those nouns are defined as routes.</p>
+
+<p>When the user clicks on the "add new post" button, they will be navigated to the <code>posts.new</code> route, which calls the <code>newRecord</code> method in the controller:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">PostsNewController</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">ObjectController</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">newRecord</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;content&#39;</span><span class="p">,</span> <span class="nx">App</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">createRecord</span><span class="p">({</span><span class="nx">title</span><span class="o">:</span> <span class="s2">&quot;new title&quot;</span><span class="p">}));</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<p>This creates a new object in the client-side store. Ember Data is smart to issue an ajax <code>POST</code> request to save the new object to the server when the user clicks the <code>submit</code> button.</p>
+
+<h2>Deleting Objects</h2>
+
+<p>So our users can delete posts, we are going to add a button to our <code>post</code> template:</p>
+
+<div class="highlight"><pre><code class="text">  &lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;post&quot;&gt;
+    &lt;form {{action save on=&quot;submit&quot;}}&gt;
+      {{partial &quot;post_fields&quot;}}
+      &lt;button type=&quot;submit&quot;&gt;Update post&lt;/button&gt;
+      &lt;button {{action destroyRecord}}&gt;delete post&lt;/button&gt;
+    &lt;/form&gt;
+  &lt;/script&gt;
+</code></pre></div>
+
+
+<p>If our user clicks the "delete post" button, it will call the <code>destroyRecord</code> method in the controller:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">App</span><span class="p">.</span><span class="nx">PostController</span> <span class="o">=</span> <span class="nx">Ember</span><span class="p">.</span><span class="nx">ObjectController</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+  <span class="nx">save</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;content&#39;</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;store&#39;</span><span class="p">).</span><span class="nx">commit</span><span class="p">();</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;target.router&#39;</span><span class="p">).</span><span class="nx">transitionTo</span><span class="p">(</span><span class="s1">&#39;posts.index&#39;</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="nx">destroyRecord</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">window</span><span class="p">.</span><span class="nx">confirm</span><span class="p">(</span><span class="s2">&quot;Are you sure you want to delete this post?&quot;</span><span class="p">))</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;content&#39;</span><span class="p">).</span><span class="nx">deleteRecord</span><span class="p">();</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;store&#39;</span><span class="p">).</span><span class="nx">commit</span><span class="p">();</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;target.router&#39;</span><span class="p">).</span><span class="nx">transitionTo</span><span class="p">(</span><span class="s1">&#39;posts.index&#39;</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<h2>Epilogue</h2>
+
+<p>That's it. This just skims the surface of what Ember Data can do. For more information, please see the <a href="http://emberjs.com/guides/models/">Ember guides</a>. Also, check out Dan Gebhardt's excellent example on <a href="https://github.com/dgeb/ember_data_example">github</a>. Dan goes into much more depth than I have here.</p>
+
+<p>The source used in this guide can be found in my <a href="https://github.com/twbrandt/ember_data_demo">github repo</a>.</p>
+</div>
+
+    <span class="meta"><small>By Tom Brandt &copy; 2013</small></span>
+
+</div>
+
+
+
+		</div>
+
+		<div id="footer">
+			<hr />
+            <p>&copy; 2013 Tom Brandt</p>
+		</div>
+
+	</body>
+
+</html>
