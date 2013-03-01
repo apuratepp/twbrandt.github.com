@@ -315,7 +315,7 @@
 </code></pre></div>
 
 
-<p>As in the previous guide, we have set up a link on each the title of each post. When the user clicks on the link, the <code>post</code> template is rendered with post they selected. The <code>post</code> will be rendered in the <code>{{outlet}}</code> in the <code>content</code> div.</p>
+<p>As in the previous guide, we have set up a link on each the title of each post. When the user clicks on the link, the <code>post</code> template is rendered with post they selected. The <code>post</code> template will be rendered in the <code>{{outlet}}</code> in the <code>content</code> div.</p>
 
 <p>In the <code>post</code> template, we are rendering a form with a couple of Ember pre-defined views: <code>Ember.TextField</code> and <code>Ember.TextArea</code>. When the user clicks the <code>submit</code> button, it causes the <code>save</code> method in the controller to be invoked:</p>
 
@@ -335,7 +335,7 @@
 
 <h2>Adding an Object</h2>
 
-<p>So users can add posts, we need to modify our templates:</p>
+<p>So users can add posts, we need to modify our templates again:</p>
 
 <div class="highlight"><pre><code class="text">  &lt;script type=&quot;text/x-handlebars&quot; data-template-name=&quot;posts&quot;&gt;
     &lt;div id=&quot;sidebar&quot;&gt;
@@ -371,7 +371,7 @@
 </code></pre></div>
 
 
-<p>We have added a button which, when clicked, navigates to the <code>posts.new</code> route.</p>
+<p>We have added a button up near the top of the <code>posts</code> template which, when clicked, navigates to the <code>posts.new</code> route.</p>
 
 <p>One of the nice things in Ember is the ability to set up partials so that common UI elements may be reused in different templates. Here, we moved the form elements to a partial named <code>_post_fields</code>. The names of partials must have a leading underline. Then we simply referenced the partial in the <code>new</code> and <code>post</code> templates.</p>
 
@@ -392,7 +392,7 @@
 </code></pre></div>
 
 
-<p>Note that <code>posts.new</code> is defined as route, while <code>posts</code> and <code>posts.post</code> are defined as resources. The convention in Ember is that <em>nouns</em> are defined as resources, while <em>verbs</em> and <em>adjectives</em> modifying those nouns are defined as routes.</p>
+<p>Note that <code>posts.new</code> is defined as a route <code>Router.map</code>, while <code>posts</code> and <code>posts.post</code> are defined as resources. The convention in Ember is that <em>nouns</em> are defined as resources, while <em>verbs</em> and <em>adjectives</em> modifying those nouns are defined as routes.</p>
 
 <p>When the user clicks on the "add new post" button, they will be navigated to the <code>posts.new</code> route, which calls the <code>newRecord</code> method in the controller:</p>
 
